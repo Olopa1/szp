@@ -1,0 +1,181 @@
+package com.example.szp.models;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Furniture {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String furnitureCode;
+    private String furnitureName;
+
+}
+package com.example.szp.models;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class TaskComment {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String comment;
+    @ManyToOne
+    private UserAccount author;
+    @ManyToOne
+    private Task task;
+}
+package com.example.szp.models;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserPersonalInfo {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @OneToOne
+    private UserAccount user;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String phone;
+}
+package com.example.szp.models;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Project {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String projectName;
+    private String company;
+    private String projectPath;
+    private String projectCountry;
+    @OneToMany(mappedBy = "project")
+    List<Furniture> furnitures;
+    @OneToMany(mappedBy = "project")
+    List<Task> tasks;
+
+    Boolean archivised;
+}
+package com.example.szp.models;
+
+public enum TaskStatus {
+    TASK_STARTED,
+    TASK_HALTED,
+    TASK_FINISHED,
+}
+package com.example.szp.models;
+
+public enum UserRole {
+    ADMIN,
+    NORMAL_USER,
+    EDITOR,
+}
+package com.example.szp.models;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Task {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String TaskName;
+    private String TaskDescription;
+    @ManyToOne
+    private Project project;
+    @ManyToMany(mappedBy = "tasks")
+    private Set<UserAccount> assignedTo;
+    private LocalDate deadline;
+    @ManyToOne
+    private UserAccount assignedFrom;
+    private TaskStatus status;
+    @OneToMany(mappedBy = "task")
+    private List<TaskComment> comments;
+
+    @ManyToOne
+    @JsonBackReference
+    private Task parentTask;
+
+    @OneToMany(mappedBy = "parentTask")
+    @JsonManagedReference
+    private List<Task> childrenTasks;
+
+    private Integer priority;
+}
+package com.example.szp.models;
+
+import jakarta.persistence.*;
+import jakarta.persistence.GenerationType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.Set;
+
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserAccount {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String userName;
+    UserRole role;
+    @OneToOne
+    UserPersonalInfo personalInfo;
+    String password;
+    Boolean isUserActive;
+    @ManyToMany
+    @JoinTable(name = "user_task")
+    Set<Task> tasks;
+    @OneToMany(mappedBy = "assignedFrom")
+    private Set<Task> assignedTasksFromMe;
+    @OneToMany(mappedBy = "author")
+    private Set<TaskComment> myComments;
+}
