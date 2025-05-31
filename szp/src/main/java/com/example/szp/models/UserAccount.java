@@ -18,14 +18,14 @@ public class UserAccount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String userName;
-    UserRole role;
+    private UserRole role;
     @OneToOne
-    UserPersonalInfo personalInfo;
-    String password;
-    Boolean isUserActive;
+    private UserPersonalInfo personalInfo;
+    private String password;
+    private Boolean isUserActive;
     @ManyToMany
     @JoinTable(name = "user_task")
-    Set<Task> tasks;
+    private Set<Task> tasks;
     @OneToMany(mappedBy = "assignedFrom")
     private Set<Task> assignedTasksFromMe;
     @OneToMany(mappedBy = "author")
