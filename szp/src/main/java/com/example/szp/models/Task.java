@@ -25,8 +25,8 @@ public class Task {
     private Project project;
     @ManyToMany(mappedBy = "tasks")
     private Set<UserAccount> assignedTo;
+    private LocalDate startDate;
     private LocalDate deadline;
-    private LocalDate estimatedWorkTime;
     @ManyToOne
     private UserAccount assignedFrom;
     private TaskStatus status;

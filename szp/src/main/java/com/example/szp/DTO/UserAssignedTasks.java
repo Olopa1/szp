@@ -10,7 +10,6 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserAssignedTasks {
-    Long id;
     UserDataShort assignee;
     Set<TaskDataShort> task;
 }
