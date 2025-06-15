@@ -5,7 +5,6 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import Navbar from '../components/Navbar';
 
 
 export default function RootLayout() {
@@ -26,15 +25,17 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={DefaultTheme}>
       <Stack>
-        <Navbar />
         <Stack.Screen name="index" options={{headerShown:false}}/>
         <Stack.Screen name="auth/login" options={{title:"Logowanie"}}/>
         <Stack.Screen name="auth/logout" options={{title:"Wyloguj"}}/>
         <Stack.Screen name="home/home" options={{headerShown:false}}/>
-        <Stack.Screen name='admin/AddNewUser' options={{headerShown:false}}/>
+        <Stack.Screen name='admin/user/AddNewUser' options={{headerShown:false}}/>
+        <Stack.Screen name='admin/Admin' options={{headerShown:false}}/>
         <Stack.Screen name='home/profile' options={{headerShown:false}}/>
         <Stack.Screen name='home/myTasks' options={{headerShown:false}}/>
         <Stack.Screen name='home/CreateTask' options={{headerShown:false}}/>
+        <Stack.Screen name='admin/user/BrowseAllUsers' options={{headerShown:false}}/>
+        <Stack.Screen name='admin/user/[id]' options={{headerShown:false}}/>
         
       </Stack>
       <StatusBar style="auto" />

@@ -46,7 +46,7 @@ export default function Navbar() {
         <TouchableOpacity onPress={() => router.push('/home/myTasks')}>
           <Text style={styles.link}>Moje zadania</Text>
         </TouchableOpacity>
-        {(role.localeCompare("ADMIN") == 0) && <TouchableOpacity onPress={() => router.push('/home/myTasks')}>
+        {(role.localeCompare("ADMIN") == 0) && <TouchableOpacity onPress={() => router.push('/admin/Admin')}>
           <Text style={styles.link}>Panel admina</Text>
         </TouchableOpacity>}
         <TouchableOpacity onPress={() => router.push('/auth/logout')}>

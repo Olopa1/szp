@@ -1,7 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import React from 'react';
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   Alert,
@@ -79,6 +78,7 @@ export default function RegisterForm({onRegister} : {onRegister: ()=> void}){
         control,
         handleSubmit,
         formState: {errors},
+        reset
     } = useForm<FormData>({
         resolver: yupResolver(schema),
         defaultValues: {
@@ -93,15 +93,17 @@ export default function RegisterForm({onRegister} : {onRegister: ()=> void}){
         }
     });
 
+    const [formSuccess, setFormSuccess] = useState(false);
+
     const onSubmit = async (data: FormData) => {
         try{
             const response = await axios.post("http://localhost:8082/api/auth/signup",{
                 ...data
             });
             
-            const token = response.data;
-            await AsyncStorage.setItem("authToken", token);
             onRegister();
+            reset();
+            setFormSuccess(true);
         }catch(error : any){
             if(error.response?.status === 409){
                 Alert.alert("Bład", "użytkownik istnieje");
@@ -120,89 +122,91 @@ export default function RegisterForm({onRegister} : {onRegister: ()=> void}){
     ];
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Rejestracja użytkownika</Text>
+      <ScrollView contentContainerStyle={styles.container}>
+        {formSuccess && (  <View style={styles.successMessage}>
+    <Text style={styles.successText}>Użytkownik został dodany</Text>
+  </View>)}
 
-      {/* Pola tekstowe */}
-      {[
-        { name: 'username', label: 'Nazwa użytkownika' },
-        { name: 'password', label: 'Hasło', secureTextEntry: true },
-        { name: 'email', label: 'Email' },
-        { name: 'firstName', label: 'Imię' },
-        { name: 'lastName', label: 'Nazwisko' },
-        { name: 'phone', label: 'Telefon' },
-      ].map(({ name, label, secureTextEntry }) => (
-        <Controller
-          key={name}
-          control={control}
-          name={name as keyof FormData}
-          render={({ field: { onChange, value } }) => (
-            <Input
-              label={label}
-              placeholder={`Wpisz ${label.toLowerCase()}`}
-              value={value.toString()}
-              onChangeText={onChange}
-              errorMessage={errors[name as keyof FormData]?.message}
-              secureTextEntry={secureTextEntry}
-            />
-          )}
-        />
-      ))}
+        <Text style={styles.title}>Dodaj nowego użytkownika</Text>
 
-      {/* Picker do wyboru roli */}
-      <Text style={styles.label}>Rola</Text>
-      <Controller
-        control={control}
-        name="role"
-        render={({ field: { onChange, value } }) => (
-          <>
-            <Text style={styles.label}>Rola</Text>
-            <Dropdown
-              style={styles.dropdown}
-              data={roleOptions}
-              labelField="label"
-              valueField="value"
-              placeholder="Wybierz rolę"
-              value={value}
-              onChange={item => onChange(item.value)}
-            />
-            {errors.role && <Text style={styles.error}>{errors.role.message}</Text>}
-          </>
-        )}
-      />
-      {errors.role && <Text style={styles.error}>{errors.role.message}</Text>}
+        {/* Pola tekstowe */}
+        {[
+          { name: 'username', label: 'Nazwa użytkownika' },
+          { name: 'password', label: 'Hasło', secureTextEntry: true },
+          { name: 'email', label: 'Email' },
+          { name: 'firstName', label: 'Imię' },
+          { name: 'lastName', label: 'Nazwisko' },
+          { name: 'phone', label: 'Telefon' },
+        ].map(({ name, label, secureTextEntry }) => (
+          <Controller
+            key={name}
+            control={control}
+            name={name as keyof FormData}
+            render={({ field: { onChange, value } }) => (
+              <Input
+                style={styles.label}
+                label={label}
+                placeholder={`Wpisz ${label.toLowerCase()}`}
+                value={value.toString()}
+                onChangeText={onChange}
+                errorMessage={errors[name as keyof FormData]?.message}
+                secureTextEntry={secureTextEntry}
+              />
+            )}
+          />
+        ))}
 
-      {/* Przełącznik aktywności */}
-      <View style={styles.switchContainer}>
-        <Text style={styles.label}>Czy aktywny?</Text>
+        {/* Picker do wyboru roli */}
+        <Text style={styles.label}>Rola</Text>
         <Controller
           control={control}
-          name="isUserActive"
+          name="role"
           render={({ field: { onChange, value } }) => (
-            <Switch value={value} onValueChange={onChange} />
+            <>
+              <Text style={styles.label}>Rola</Text>
+              <Dropdown
+                style={styles.dropdown}
+                data={roleOptions}
+                labelField="label"
+                valueField="value"
+                placeholder="Wybierz rolę"
+                value={value}
+                onChange={item => onChange(item.value)}
+              />
+              {errors.role && <Text style={styles.error}>{errors.role.message}</Text>}
+            </>
           )}
         />
-      </View>
+        {errors.role && <Text style={styles.error}>{errors.role.message}</Text>}
 
-      <Button title="Zarejestruj się" onPress={handleSubmit(onSubmit)} color="#007bff" />
-    </ScrollView>
+        {/* Przełącznik aktywności */}
+        <View style={styles.switchContainer}>
+          <Text style={styles.label}>Czy aktywny?</Text>
+          <Controller
+            control={control}
+            name="isUserActive"
+            render={({ field: { onChange, value } }) => (
+              <Switch value={value} onValueChange={onChange} />
+            )}
+          />
+        </View>
+
+        <Button title="Dodaj użytkownika" onPress={handleSubmit(onSubmit)} color="#007bff" />
+      </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    paddingTop: 40,
-    backgroundColor: '#f8f8f8',
-    flexGrow: 1,
+    padding: 10,
+    color: 'white'
   },
     dropdown: {
     height: 50,
-    borderColor: '#ccc',
+    borderColor: 'white',
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 12,
-    backgroundColor: '#fff',
     marginBottom: 10,
     justifyContent: 'center',
   },
@@ -211,20 +215,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 30,
-    color: '#333',
+    color: 'white',
   },
   label: {
     marginLeft: 10,
     marginBottom: 5,
     fontWeight: 'bold',
-    color: '#555',
+    color: 'white',
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: 'white',
     borderRadius: 5,
     marginBottom: 10,
-    backgroundColor: '#fff',
   },
   switchContainer: {
     flexDirection: 'row',
@@ -237,4 +240,23 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginLeft: 10,
   },
+  successMessage: {
+  backgroundColor: '#d4edda',
+  borderColor: '#c3e6cb',
+  borderWidth: 1,
+  padding: 15,
+  borderRadius: 10,
+  marginBottom: 20,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.25,
+  shadowRadius: 3.84,
+  elevation: 5,
+},
+successText: {
+  color: '#155724',
+  fontSize: 16,
+  fontWeight: '600',
+  textAlign: 'center',
+},
 });
