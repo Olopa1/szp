@@ -56,6 +56,7 @@ public class Mapper {
         taskData.setStatus(task.getStatus());
         taskData.setProjectName(task.getProject().getProjectName());
         taskData.setPriority(task.getPriority());
+        taskData.setRequestFrom(Mapper.mapUserDataShort(task.getAssignedFrom()));
         return taskData;
     }
 
@@ -109,5 +110,12 @@ public class Mapper {
         furnitureDetails.setFurnitureCode(furniture.getFurnitureCode());
         furnitureDetails.setProject(Mapper.mapProjectDataShort(furniture.getProject()));
         return furnitureDetails;
+    }
+
+    public static ProjectNameAndId mapProjectNameAndId(Project project) {
+        ProjectNameAndId projectNameAndId = new ProjectNameAndId();
+        projectNameAndId.setProjectName(project.getProjectName());
+        projectNameAndId.setProjectId(project.getId());
+        return projectNameAndId;
     }
 }

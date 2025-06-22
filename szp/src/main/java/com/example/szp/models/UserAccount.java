@@ -2,9 +2,7 @@ package com.example.szp.models;
 
 import jakarta.persistence.*;
 import jakarta.persistence.GenerationType;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Set;
 
@@ -13,6 +11,8 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"tasks", "assignedTasksFromMe", "myComments", "personalInfo"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class UserAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

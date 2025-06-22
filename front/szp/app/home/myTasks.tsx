@@ -1,11 +1,10 @@
 import Navbar from '@/components/Navbar';
 import OptionTile from '@/components/OptionTile';
 import { router } from 'expo-router';
-import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 
-export default function home(){
+export default function myTasks(){
     const tiles = Array.from({ length: 15 }, (_, index) => index); // [0,1,2,3,4]
 
     const goToCreateTask = (()=>{

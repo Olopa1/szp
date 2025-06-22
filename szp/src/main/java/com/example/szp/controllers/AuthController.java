@@ -2,6 +2,7 @@ package com.example.szp.controllers;
 
 import com.example.szp.DTO.LoginData;
 import com.example.szp.DTO.RegisterData;
+import com.example.szp.DTO.UserDataShort;
 import com.example.szp.models.UserAccount;
 import com.example.szp.models.UserRole;
 import com.example.szp.repos.UserAccountRepo;
@@ -82,5 +83,19 @@ public class AuthController {
         }
         String role = jwtUtils.getUserRoleFromToken(token);
         return new ResponseEntity<>(role, HttpStatus.OK);
+    }
+
+    @GetMapping("/getUserFromToken")
+    public ResponseEntity<UserDataShort> getUserFromToken(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return new ResponseEntity<>( HttpStatus.UNAUTHORIZED);
+        }
+        String token = authHeader.substring(7);
+        if(!jwtUtils.validateToken(token)) {
+            return new ResponseEntity<>( HttpStatus.UNAUTHORIZED);
+        }
+        String user = jwtUtils.getUserNameFromToken(token);
+        UserDataShort userData = userService.getUserDataByUsername(user);
+        return new ResponseEntity<>(userData,HttpStatus.OK);
     }
 }

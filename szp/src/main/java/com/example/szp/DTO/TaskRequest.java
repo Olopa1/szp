@@ -19,7 +19,7 @@ public class TaskRequest {
     private Long assignedFromUserId;
     private LocalDate deadline;
     private LocalDate startDate;
-    private TaskStatus status;
+    private String status;
     private Long parentTaskId;
     private Integer priority;
 }

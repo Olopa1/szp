@@ -1,11 +1,16 @@
 package com.example.szp.services;
 
 import com.example.szp.DTO.ProjectDataShort;
+import com.example.szp.DTO.ProjectNameAndId;
 import com.example.szp.DTO.ProjectRequest;
 import com.example.szp.models.Project;
 import com.example.szp.repos.ProjectRepo;
 import com.example.szp.utils.Mapper;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
@@ -31,5 +36,11 @@ public class ProjectService {
             return null;
         }
         return Mapper.mapProjectDataShort(project);
+    }
+
+    public List<ProjectNameAndId> getAllProjectsNameAndId() {
+        List<Project> projects = projectRepo.findAll();
+        return projects.stream().map(Mapper::mapProjectNameAndId).collect(Collectors.toList());
+
     }
 }
