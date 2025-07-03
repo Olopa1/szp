@@ -12,12 +12,12 @@ import java.util.List;
 public interface TaskRepo extends JpaRepository<Task, Long> {
     Task findByTaskName(String taskName);
     Task findById(long id);
-    
-//    @Query("SELECT t FROM Task t INNER JOIN t.assignedTo at WHERE at.id = :userId")
-//    Page<Task> findAllTasksByUserId(Long userId, Pageable pageable);
-//
-    @Query("SELECT t FROM UserAccount ua INNER JOIN ua.tasks t")
-    List<Task> findAllTasksByUserId(Long userId, Pageable pageable);
+
+    @Query("SELECT t FROM Task t")
+    Page<Task> findAllTasks(Pageable pageable);
+
+    @Query("SELECT t FROM Task t INNER JOIN t.assignedTo at WHERE at.id = :userId")
+    Page<Task> findAllTasksByUserId(Long userId, Pageable pageable);
 
     @Query("SELECT t FROM Task t INNER JOIN t.assignedTo at WHERE at.id = :parentId")
     List<Task> findAllChildrenTasksByParentId(Long parentId);

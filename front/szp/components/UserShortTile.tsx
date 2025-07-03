@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     TitleStyle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#1e293b', // ciemnoniebieski (czytelny na jasnym tle)
     textAlign: 'center',
     marginBottom: 6,
     },
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     LabelStyle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#cccccc',
+    color: '#64748b', // szary z palety Tailwind (Slate-500)
     textAlign: 'center',
     },
     DescStyle:{

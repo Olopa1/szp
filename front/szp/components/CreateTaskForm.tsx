@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     width: '70%',     // zamiast 800, dla responsywności
     textAlign: 'center',
-    maxHeight:800,
+    maxHeight:600,
   },
   label: {
     fontWeight: 'bold',

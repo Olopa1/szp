@@ -1,22 +1,26 @@
+import Navbar from '@/components/Navbar';
+import UserDetailsEditor from '@/components/UserDetailsEditor';
 import { useLocalSearchParams } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 export default function UserDetailScreen() {
   const { id } = useLocalSearchParams();
-
+  const userId = Number(id);
+  console.log('User ID:', userId);
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Szczegóły użytkownika</Text>
-      <Text style={styles.id}>ID: {id}</Text>
-      {/* Możesz teraz pobrać dane z backendu po tym ID */}
-    </View>
+    <>
+    <Navbar />
+      <View style={styles.container}>
+          {isNaN(userId) ? null : <UserDetailsEditor userId={userId} />}
+      </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1c1c1c',
+    //backgroundColor: '#1c1c1c',
     justifyContent: 'center',
     alignItems: 'center',
   },

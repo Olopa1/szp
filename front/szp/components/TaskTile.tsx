@@ -21,17 +21,16 @@ export interface TaskDataShort {
   status: TaskStatus;
   priority: number;
   requestFrom: UserDataShort;
+  deadlineDate: string; // ISO 8601 format
 }
 
 interface Props {
   task: TaskDataShort;
+  handlePress: () => void;
 }
 
-const TaskCard: React.FC<Props> = ({ task }) => {
+const TaskCard: React.FC<Props> = ({ task,handlePress }) => {
   
-  const handlePress = () => {
-    //navigation.navigate("TaskEdit", { taskId: task.id });
-  };
 
   const getStatusColor = (status: TaskStatus) => {
     switch (status) {

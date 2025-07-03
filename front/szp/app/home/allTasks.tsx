@@ -1,5 +1,5 @@
 import Navbar from "@/components/Navbar";
-import TaskCard, { TaskDataShort, TaskStatus, UserDataShort } from "@/components/TaskTile";
+import TaskCard, { TaskDataShort } from "@/components/TaskTile";
 import { GetUserFromToken, UserOption } from "@/utils/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
@@ -18,21 +18,6 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-
-export interface TaskDataDetails {
-  id: number;
-  taskName: string;
-  taskDescription: string;
-  projectName: string;
-  assignedTo: UserDataShort[];
-  assignedFrom: UserDataShort;
-  status: TaskStatus;
-  deadline: string; // lub Date, jeśli parsujesz
-  estimatedWorkTime: string; // lub Date
-  //comments: Comment[];
-  childrenTasks: TaskDataShort[];
-  priority: number;
-}
 
 interface GroupedTasksPage {
   groupedTasks: {
@@ -59,7 +44,7 @@ const statusLabels: Record<string, string> = {
   TASK_HALTED: "Wstrzymane",
 };
 
-const PAGE_SIZE = 20; // Liczba zadań na stronie
+const PAGE_SIZE = 20;
 const COMMENTS_PAGE_SIZE = 5;
 
 export default function DisplayMyTasks() {
@@ -86,25 +71,8 @@ export default function DisplayMyTasks() {
   const [commentsPage, setCommentsPage] = useState(0);
   const [commentsTotalPages, setCommentsTotalPages] = useState(0);
   const [loadingComments, setLoadingComments] = useState(false);
-  const [taskDetails, setTaskDetails] = useState<TaskDataDetails | null>(null);
 
-  const fetchTaskDetails = async (taskId: number) => {
-  try {
-    const authToken = await AsyncStorage.getItem("authToken");
-    if (!authToken) throw new Error("Brak tokenu autoryzacji");
-
-    const response = await axios.get(`http://localhost:8082/api/task/getTaskById/${taskId}`, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
-
-    setTaskDetails(response.data);
-  } catch (error) {
-    console.error("Błąd podczas pobierania szczegółów zadania:", error);
-    Alert.alert("Błąd", "Nie udało się pobrać szczegółów zadania.");
-  }
-};  
+  
 
   const fetchTasks = async (page: number) => {
     setLoading(true);
@@ -112,9 +80,8 @@ export default function DisplayMyTasks() {
       const authToken = await AsyncStorage.getItem("authToken");
       if (!authToken) throw new Error("Brak tokenu autoryzacji");
 
-      const response = await axios.get("http://localhost:8082/api/task/getUserTasks", {
+      const response = await axios.get("http://localhost:8082/api/task/getAllTasks", {
         params: {
-          id: 1,
           page,
           size: PAGE_SIZE,
           sortBy, // <-- dynamiczne sortowanie
@@ -207,12 +174,8 @@ export default function DisplayMyTasks() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Szczegóły zadania</Text>
-            <Text style={styles.modalText}>Tytuł: {taskDetails?.taskName}</Text>
-            <Text style={styles.modalText}>Opis: {taskDetails?.taskDescription || "Brak opisu"}</Text>
-            <Text style={styles.modalText}>Projekt: {taskDetails?.projectName || "Brak"}</Text>
-            <Text style={styles.modalText}>Wykonać do: {taskDetails?.deadline || "Brak"}</Text>
-            <Text style={styles.modalText}>Czas szacowany: {taskDetails?.estimatedWorkTime || "Brak"}</Text>
-            <Text style={styles.modalText}>Priorytet: {taskDetails?.priority ?? "Brak"}</Text>
+            <Text style={styles.modalText}>Tytuł: {selectedTask?.taskName}</Text>
+
             {/* === SELEKTOR STATUSU === */}
             {selectedTask && (
               <>
@@ -394,7 +357,6 @@ export default function DisplayMyTasks() {
                       setSelectedStatus(item.status);
                       setSelectedTask(item);
                       setModalVisible(true);
-                      fetchTaskDetails(item.id);
                       fetchComments(item.id, 0);
                       setComment("");
                     }}

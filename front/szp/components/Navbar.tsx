@@ -38,7 +38,7 @@ export default function Navbar() {
       <Text style={styles.logo}>System zarządzania projektami</Text>
       <View style={styles.links}>
         <TouchableOpacity onPress={() => router.push('/home/home')}>
-          <Text style={styles.link}>Home</Text>
+          <Text style={styles.link}>Główna</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push('/home/profile')}>
           <Text style={styles.link}>Profil</Text>

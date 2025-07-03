@@ -64,9 +64,9 @@ const schema = yup.object({
     .matches(/^\d{9}$/, "Numer telefonu musi mieć dokładnie 9 cyfr"),
 
   role: yup
-    .number()
+    .string()
     .required("Rola jest wymagana")
-    .oneOf([0, 1, 2], "Nieprawidłowa rola użytkownika"),
+    .oneOf(['ADMIN', 'NORMAL_USER'], "Nieprawidłowa rola użytkownika"),
 
   isUserActive: yup
     .boolean()
@@ -116,9 +116,9 @@ export default function RegisterForm({onRegister} : {onRegister: ()=> void}){
     };  
 
     const roleOptions = [
-      { label: 'Użytkownik', value: 0 },
-      { label: 'Moderator', value: 1 },
-      { label: 'Administrator', value: 2 },
+      { label: 'Użytkownik', value: 'NORMAL_USER' },
+      //{ label: 'Moderator', value: 1 },
+      { label: 'Administrator', value: 'ADMIN' },
     ];
 
   return (
@@ -198,65 +198,57 @@ export default function RegisterForm({onRegister} : {onRegister: ()=> void}){
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
-    color: 'white'
+    flexGrow: 1,
+    padding: 16,
+    backgroundColor: "#f8fafc",
   },
-    dropdown: {
+  title: {
+    fontSize: 24,
+    fontWeight: "600",
+    textAlign: "center",
+    marginBottom: 20,
+    color: "#1e293b",
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#334155",
+    marginBottom: 6,
+    marginLeft: 4,
+  },
+  dropdown: {
     height: 50,
-    borderColor: 'white',
+    borderColor: "#cbd5e1",
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 12,
-    marginBottom: 10,
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 30,
-    color: 'white',
-  },
-  label: {
-    marginLeft: 10,
-    marginBottom: 5,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: 'white',
-    borderRadius: 5,
-    marginBottom: 10,
+    marginBottom: 12,
+    backgroundColor: "#fff",
   },
   switchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 20,
     gap: 10,
   },
   error: {
-    color: 'red',
-    marginBottom: 10,
-    marginLeft: 10,
+    color: "#dc2626",
+    fontSize: 13,
+    marginLeft: 6,
+    marginBottom: 8,
   },
   successMessage: {
-  backgroundColor: '#d4edda',
-  borderColor: '#c3e6cb',
-  borderWidth: 1,
-  padding: 15,
-  borderRadius: 10,
-  marginBottom: 20,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.25,
-  shadowRadius: 3.84,
-  elevation: 5,
-},
-successText: {
-  color: '#155724',
-  fontSize: 16,
-  fontWeight: '600',
-  textAlign: 'center',
-},
+    backgroundColor: "#d1fae5",
+    borderColor: "#10b981",
+    borderWidth: 1,
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  successText: {
+    color: "#065f46",
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+  },
 });

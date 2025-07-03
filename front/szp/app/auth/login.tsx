@@ -22,13 +22,13 @@ const styles = StyleSheet.create({
   container: {
     padding: '3%',
     marginTop: 80,
-    backgroundColor: '#33322d',
+    //backgroundColor: '#33322d',
     width: '50%',
     marginLeft: 'auto',
     marginRight: 'auto',
     borderRadius: 20,
     borderWidth: 5,
-    borderColor: "white"
+    borderColor: "gray"
   },
   baseText:{
     fontWeight: 'bold',

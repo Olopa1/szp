@@ -28,13 +28,14 @@ public class ProjectController {
         return new ResponseEntity<>(projects, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','NORMAL_USER')")
     @PostMapping("/createProject")
     public ResponseEntity<String> createProject(@RequestBody ProjectRequest project) {
         projectService.createProject(project);
         return new ResponseEntity<>("Project created", HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'NORMAL_USER')")
     @GetMapping("/getAllProjectsNames")
     public ResponseEntity<List<ProjectNameAndId>> getAllProjectsNames() {
         return new ResponseEntity<>(projectService.getAllProjectsNameAndId(), HttpStatus.OK);

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -19,8 +20,10 @@ public class Project {
     private String company;
     private String projectPath;
     private String projectCountry;
+    @ToString.Exclude
     @OneToMany(mappedBy = "project")
     List<Furniture> furnitures;
+    @ToString.Exclude
     @OneToMany(mappedBy = "project")
     List<Task> tasks;
 

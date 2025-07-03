@@ -1,8 +1,6 @@
 package com.example.szp.controllers;
 
-import com.example.szp.DTO.GroupedTasksPage;
-import com.example.szp.DTO.TaskDataShort;
-import com.example.szp.DTO.TaskRequest;
+import com.example.szp.DTO.*;
 import com.example.szp.models.Task;
 import com.example.szp.models.TaskStatus;
 import com.example.szp.services.TaskService;
@@ -42,13 +40,39 @@ public class TaskController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "SORT_BY_USERNAME") TaskSortBy sortBy
     ) {
-        System.out.println(userId);
-        System.out.println(page);
-        System.out.println(size);
-        System.out.println(sortBy);
         GroupedTasksPage result = taskService.getAllUserTasks(userId, page, size, sortBy);
-        System.out.println(result);
         return ResponseEntity.ok(result);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'NORMAL_USER')")
+    @GetMapping("/getAllTasks")
+    public ResponseEntity<GroupedTasksPage> getAllTasks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "SORT_BY_USERNAME") TaskSortBy sortBy
+    ){
+        GroupedTasksPage result = taskService.getAllTasks(page,size,sortBy);
+        return ResponseEntity.ok(result);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'NORMAL_USER')")
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateTaskStatus(@PathVariable Long id, @RequestBody UpdateStatusRequest request) {
+        boolean outcome = taskService.updateTaskStatus(id, request.getStatus());
+        if(outcome) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'NORMAL_USER')")
+    @GetMapping("/getTaskById/{id}")
+    public ResponseEntity<TaskDataDetails> getTaskById(@PathVariable("id") Long taskId) {
+        TaskDataDetails task = taskService.getTaskById(taskId);
+        System.out.println(task);
+        if(task == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(task, HttpStatus.OK);
+    }
 }

@@ -36,7 +36,9 @@ export default function RootLayout() {
         <Stack.Screen name='home/CreateTask' options={{headerShown:false}}/>
         <Stack.Screen name='admin/user/BrowseAllUsers' options={{headerShown:false}}/>
         <Stack.Screen name='admin/user/[id]' options={{headerShown:false}}/>
-        
+        <Stack.Screen name='home/CallendraView' options={{headerShown:false}}/>
+        <Stack.Screen name='home/CreateProject' options={{headerShown:false}}/>
+        <Stack.Screen name='home/allTasks' options={{headerShown:false}}/>
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

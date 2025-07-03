@@ -38,48 +38,106 @@ public class TaskService {
     @Transactional
     public String addTask(TaskRequest req) {
         Task task = new Task();
+
         task.setTaskName(req.getTaskName());
         task.setTaskDescription(req.getTaskDescription());
         task.setDeadline(req.getDeadline());
         task.setStartDate(req.getStartDate());
+        task.setPriority(req.getPriority());
+
+        // Ustawienie statusu - bez TASK_ prefixu, jeśli enum tego nie wymaga
         try {
-            task.setStatus(TaskStatus.valueOf("TASK_" + req.getStatus()));
+            task.setStatus(TaskStatus.valueOf("TASK_"+req.getStatus().toUpperCase()));
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid task status: " + req.getStatus());
         }
-        task.setPriority(req.getPriority());
 
-        // Przypisz projekt
+        // Przypisanie projektu
         if (req.getProjectId() != null) {
-            projectRepo.findById(req.getProjectId()).ifPresent(task::setProject);
+            Project project = projectRepo.findById(req.getProjectId())
+                    .orElseThrow(() -> new IllegalArgumentException("Project not found with ID: " + req.getProjectId()));
+            task.setProject(project);
         }
 
-        // Przypisz użytkowników, do których zadanie jest przypisane
-        if (req.getAssignedToUserIds() != null) {
-            Set<UserAccount> assignedUsers = new HashSet<>(userAccountRepo.findAllById(req.getAssignedToUserIds()));
+        // Przypisanie użytkowników do zadania
+        if (req.getAssignedToUserIds() != null && !req.getAssignedToUserIds().isEmpty()) {
+            Set<UserAccount> assignedUsers = new HashSet<>();
+
+            for(Long id : req.getAssignedToUserIds()) {
+                if(userAccountRepo.findById(id).isPresent()) {
+                    assignedUsers.add(userAccountRepo.findById(id).get());
+                }
+            }
+
+
             task.setAssignedTo(assignedUsers);
+
+            // Ustaw relację odwrotną
+            for (UserAccount user : assignedUsers) {
+                user.getTasks().add(task);
+            }
         }
 
-        // Kto przypisał to zadanie
+        // Kto przypisał zadanie (obowiązkowe)
         if (req.getAssignedFromUserId() != null) {
-            userAccountRepo.findById(req.getAssignedFromUserId()).ifPresent(task::setAssignedFrom);
-        }
-        else{
-            return "Task adding failed no user specified";
+            UserAccount fromUser = userAccountRepo.findById(req.getAssignedFromUserId())
+                    .orElseThrow(() -> new IllegalArgumentException("User who assigns the task not found: " + req.getAssignedFromUserId()));
+            task.setAssignedFrom(fromUser);
+        } else {
+            throw new IllegalArgumentException("Task adding failed: no user specified as assignedFrom.");
         }
 
+        // Ustawienie zadania nadrzędnego (jeśli jest)
         if (req.getParentTaskId() != null) {
-            taskRepo.findById(req.getParentTaskId()).ifPresent(task::setParentTask);
+            Task parentTask = taskRepo.findById(req.getParentTaskId())
+                    .orElseThrow(() -> new IllegalArgumentException("Parent task not found with ID: " + req.getParentTaskId()));
+            task.setParentTask(parentTask);
         }
 
+        // Zapis i flush
         taskRepo.save(task);
+        taskRepo.flush(); // upewnia się, że dane są w bazie
+
         return "Task added successfully";
     }
 
     @Transactional
-    public Map<TaskStatus,List<TaskDataShort>> getAllTasks() {
-        List<Task> tasks = taskRepo.findAll();
-        return tasks.stream().map(Mapper::mapTaskDataShort).collect(Collectors.groupingBy(TaskDataShort::getStatus));
+    public boolean updateTaskStatus(Long id, String status){
+        Task task = taskRepo.findById(id).orElse(null);
+        if (task == null) {
+            return false;
+        }
+        task.setStatus(TaskStatus.valueOf(status));
+        taskRepo.save(task);
+        taskRepo.flush();
+        return true;
+    }
+
+    @Transactional
+    public GroupedTasksPage getAllTasks(int page, int pageSize, TaskSortBy sortBy) {
+        String sortByField = switch(sortBy){
+            case SORT_BY_DEADLINE_DATE -> "t.deadline";
+            case SORT_BY_PROJECT -> "t.project.projectName";
+            case SORT_BY_ASSIGNED_FROM -> "t.assignedFrom.userName";
+            default -> "t.project.projectName";
+        };
+        Sort sort = Sort.by(sortByField);
+        Pageable pageable = PageRequest.of(page,pageSize,sort);
+        Page<Task> tasks = taskRepo.findAllTasks(pageable);
+        return getGroupedTasksPage(tasks);
+    }
+
+    private GroupedTasksPage getGroupedTasksPage(Page<Task> tasks) {
+        Map<TaskStatus, List<TaskDataShort>> grouped = tasks.stream()
+                .map(Mapper::mapTaskDataShort)
+                .collect(Collectors.groupingBy(TaskDataShort::getStatus));
+        GroupedTasksPage packed = new GroupedTasksPage();
+        packed.setPage(tasks.getNumber());
+        packed.setSize(tasks.getSize());
+        packed.setTotalElements(tasks.getTotalElements());
+        packed.setTotalPages(tasks.getTotalPages());
+        packed.setGroupedTasks(grouped);
+        return packed;
     }
 
     @Transactional
@@ -91,6 +149,7 @@ public class TaskService {
         return Mapper.mapTaskDataDetails(task);
     }
 
+    @Transactional
     public GroupedTasksPage getAllUserTasks(Long userId, int page, int pageSize, TaskSortBy sortBy) {
         String sortByField = switch(sortBy){
             case SORT_BY_DEADLINE_DATE -> "t.deadline";
@@ -98,24 +157,11 @@ public class TaskService {
             case SORT_BY_ASSIGNED_FROM -> "t.assignedFrom.userName";
             default -> "t.project.projectName";
         };
-        Pageable pageable = PageRequest.of(page, pageSize);
-        System.out.println(userId);
-        List<Task> taskPage = taskRepo.findAllTasksByUserId(userId, pageable);
+        Sort sort = Sort.by(sortByField).ascending();
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
 
-        System.out.println(taskPage);
-        //System.out.println("Page info: " + taskPage.getNumber() + " of " + taskPage.getTotalPages() + ", size: " + taskPage.getSize());
-        //System.out.println("Content: " + taskPage.getContent());
+        Page<Task> taskPage = taskRepo.findAllTasksByUserId(userId, pageable);
 
-        Map<TaskStatus,List<TaskDataShort>> grouped = taskPage.stream()
-                .map(Mapper::mapTaskDataShort)
-                .collect(Collectors.groupingBy(TaskDataShort::getStatus));
-
-        GroupedTasksPage packed =  new GroupedTasksPage();
-        //packed.setTotalElements(taskPage.getTotalElements());
-        //packed.setTotalPages(taskPage.getTotalPages());
-        packed.setPage(page);
-        packed.setGroupedTasks(grouped);
-
-        return packed;
+        return getGroupedTasksPage(taskPage);
     }
 }

@@ -50,8 +50,6 @@ const styles = StyleSheet.create({
     LogoutText:{
         fontSize:50,
         textAlign: 'center',
-
-        //margin: 50
     },
     button: {
         alignSelf:'center',

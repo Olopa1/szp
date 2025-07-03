@@ -11,7 +11,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"tasks", "assignedTasksFromMe", "myComments", "personalInfo"})
+//@ToString(exclude = {"tasks", "assignedTasksFromMe", "myComments", "personalInfo"})
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class UserAccount {
     @Id
@@ -19,15 +19,19 @@ public class UserAccount {
     private Long id;
     private String userName;
     private UserRole role;
+    @ToString.Exclude
     @OneToOne
     private UserPersonalInfo personalInfo;
     private String password;
     private Boolean isUserActive;
+    @ToString.Exclude
     @ManyToMany
     @JoinTable(name = "user_task")
     private Set<Task> tasks;
+    @ToString.Exclude
     @OneToMany(mappedBy = "assignedFrom")
     private Set<Task> assignedTasksFromMe;
+    @ToString.Exclude
     @OneToMany(mappedBy = "author")
     private Set<TaskComment> myComments;
 }

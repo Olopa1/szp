@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, TextInput, View } from 'react-native'; // Importujemy TextInput
+import { Alert, FlatList, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 interface User {
   id: number;
@@ -15,7 +15,7 @@ interface User {
 
 export default function BrowseAllUser() {
   const [users, setUsers] = useState<User[]>([]);
-  const [searchText, setSearchText] = useState<string>(''); // nowy stan na tekst wyszukiwania
+  const [searchText, setSearchText] = useState<string>('');
 
   useEffect(() => {
     fetchUsers();
@@ -29,8 +29,7 @@ export default function BrowseAllUser() {
           Authorization: `Bearer ${token}`,
         },
       });
-      const data = response.data;
-      setUsers(data);
+      setUsers(response.data);
     } catch (error) {
       Alert.alert("Błąd", "Nie udało się pobrać użytkowników");
     }
@@ -38,14 +37,12 @@ export default function BrowseAllUser() {
 
   const handleUserDetail = (id?: number) => {
     if (!id) return;
-
     router.push({
       pathname: "/admin/user/[id]",
       params: { id: id.toString() },
     });
   };
 
-  // Filtrujemy użytkowników na podstawie searchText
   const filteredUsers = users.filter(user =>
     user.userName.toLowerCase().includes(searchText.toLowerCase())
   );
@@ -53,14 +50,13 @@ export default function BrowseAllUser() {
   return (
     <>
       <Navbar />
-      <View style={styles.page}>
+      <ScrollView style={styles.container}>
         <Text style={styles.title}>Lista użytkowników</Text>
 
-        {/* Pole wyszukiwania */}
         <TextInput
           style={styles.searchInput}
           placeholder="Szukaj po nazwie użytkownika"
-          placeholderTextColor="#aaa"
+          placeholderTextColor="#666"
           value={searchText}
           onChangeText={setSearchText}
           autoCapitalize="none"
@@ -71,56 +67,61 @@ export default function BrowseAllUser() {
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.listContainer}
           renderItem={({ item }) => (
-            <UserShortTile
-              id={item.id}
-              username={item.userName}
-              firstName={item.firstName}
-              lastName={item.lastName}
-              onTileClick={() => handleUserDetail(item.id)}
-              bgColor="#33322d"
-              bgHoverColor="#4d4c47"
-              borderColor="white"
-            />
+            <View style={styles.cardWrapper}>
+              <UserShortTile
+                id={item.id}
+                username={item.userName}
+                firstName={item.firstName}
+                lastName={item.lastName}
+                onTileClick={() => handleUserDetail(item.id)}
+                bgColor="#f1f5f9"
+                bgHoverColor="#e2e8f0"
+                borderColor="#cbd5e1"
+              />
+            </View>
           )}
-          ListEmptyComponent={<Text style={styles.LogoutText}>Brak użytkowników</Text>}
+          ListEmptyComponent={<Text style={styles.emptyText}>Brak użytkowników</Text>}
         />
-      </View>
+      </ScrollView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  page: {
+  container: {
     flex: 1,
-    backgroundColor: '#1c1c1c',
-    paddingHorizontal: 20,
-    paddingTop: 40,
+    backgroundColor: "#f8fafc",
+    paddingHorizontal: 16,
+    paddingTop: 20,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-    marginBottom: 20,
+    fontSize: 26,
+    fontWeight: "600",
+    textAlign: "center",
+    marginBottom: 16,
+    color: "#1e293b",
   },
   searchInput: {
-    backgroundColor: '#333',
-    color: 'white',
-    paddingHorizontal: 15,
+    backgroundColor: "#e2e8f0",
+    paddingHorizontal: 12,
     paddingVertical: 10,
-    borderRadius: 10,
+    borderRadius: 8,
     fontSize: 16,
-    marginBottom: 15,
+    marginBottom: 12,
+    color: "#1e293b",
   },
   listContainer: {
     paddingBottom: 30,
-    alignItems: 'center',
+    alignItems: "center",
   },
-  LogoutText: {
-    fontSize: 20,
-    color: '#888',
-    textAlign: 'center',
-    marginTop: 30,
+  cardWrapper: {
+    marginBottom: 10,
+    paddingHorizontal: 4,
   },
-  // inne style...
+  emptyText: {
+    textAlign: "center",
+    color: "#94a3b8",
+    fontSize: 18,
+    marginTop: 24,
+  },
 });

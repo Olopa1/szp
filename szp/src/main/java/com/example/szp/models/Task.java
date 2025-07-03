@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,16 +21,21 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String taskName;
+    @Column(columnDefinition = "TEXT")
     private String taskDescription;
+    @ToString.Exclude
     @ManyToOne
     private Project project;
+    @ToString.Exclude
     @ManyToMany(mappedBy = "tasks")
     private Set<UserAccount> assignedTo;
     private LocalDate startDate;
     private LocalDate deadline;
+    @ToString.Exclude
     @ManyToOne
     private UserAccount assignedFrom;
     private TaskStatus status;
+    @ToString.Exclude
     @OneToMany(mappedBy = "task")
     private List<TaskComment> comments;
 

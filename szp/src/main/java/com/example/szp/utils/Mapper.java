@@ -9,9 +9,15 @@ public class Mapper {
     public static Comment mapComment(TaskComment comment) {
         UserDataShort userData = new UserDataShort();
         userData.setId(comment.getAuthor().getId());
-        userData.setUserName(comment.getAuthor().getUserName());
-        userData.setFirstName(comment.getAuthor().getPersonalInfo().getFirstName());
-        userData.setLastName(comment.getAuthor().getPersonalInfo().getLastName());
+        if(comment.getAuthor().getPersonalInfo() != null) {
+            userData.setUserName(comment.getAuthor().getUserName());
+            userData.setFirstName(comment.getAuthor().getPersonalInfo().getFirstName());
+            userData.setLastName(comment.getAuthor().getPersonalInfo().getLastName());
+        }else{
+            userData.setUserName("No username");
+            userData.setFirstName("No firstname");
+            userData.setLastName("No lastname");
+        }
 
         TaskDataShort taskData = new TaskDataShort();
         taskData.setId(comment.getTask().getId());
@@ -41,11 +47,19 @@ public class Mapper {
         UserDataDetails userData = new UserDataDetails();
         userData.setId(user.getId());
         userData.setUserName(user.getUserName());
-        userData.setFirstName(user.getPersonalInfo().getFirstName());
-        userData.setLastName(user.getPersonalInfo().getLastName());
         userData.setUserRole(user.getRole());
-        userData.setEmail(user.getPersonalInfo().getEmail());
-        userData.setPhone(user.getPersonalInfo().getPhone());
+        if(user.getPersonalInfo() != null) {
+            userData.setFirstName(user.getPersonalInfo().getFirstName());
+            userData.setLastName(user.getPersonalInfo().getLastName());
+            userData.setEmail(user.getPersonalInfo().getEmail());
+            userData.setPhone(user.getPersonalInfo().getPhone());
+        }else{
+            userData.setFirstName("no first name specified");
+            userData.setLastName("no last name specified");
+            userData.setEmail("no email specified");
+            userData.setPhone("no phone specified");
+        }
+
         return userData;
     }
 
@@ -57,6 +71,7 @@ public class Mapper {
         taskData.setProjectName(task.getProject().getProjectName());
         taskData.setPriority(task.getPriority());
         taskData.setRequestFrom(Mapper.mapUserDataShort(task.getAssignedFrom()));
+        taskData.setDeadlineDate(task.getDeadline());
         return taskData;
     }
 

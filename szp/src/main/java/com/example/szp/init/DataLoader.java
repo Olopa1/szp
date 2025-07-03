@@ -45,6 +45,7 @@ public class DataLoader {
             newUserAccount.setUserName("testAdmin");
             newUserAccount.setPassword(passwordEncoder.encode("password"));
             newUserAccount.setRole(UserRole.ADMIN);
+            newUserAccount.setIsUserActive(true);
 
             userRepo.save(newUserAccount);
 
@@ -52,12 +53,13 @@ public class DataLoader {
             newUserAccount2.setUserName("testUser");
             newUserAccount2.setPassword(passwordEncoder.encode("password"));
             newUserAccount2.setRole(UserRole.NORMAL_USER);
+            newUserAccount2.setIsUserActive(true);
 
             userRepo.save(newUserAccount2);
 
             UserAccount admin = new UserAccount(null, "adminUser", UserRole.ADMIN, null, "admin123", true, Set.of(), Set.of(), Set.of());
             UserAccount user = new UserAccount(null, "normalUser", UserRole.NORMAL_USER, null, "user123", true, Set.of(), Set.of(), Set.of());
-            UserAccount editor = new UserAccount(null, "editorUser", UserRole.EDITOR, null, "editor123", true, Set.of(), Set.of(), Set.of());
+            UserAccount editor = new UserAccount(null, "editorUser", UserRole.ADMIN, null, "editor123", true, Set.of(), Set.of(), Set.of());
 
             // Save users first to generate IDs
             userRepo.save(admin);
@@ -82,7 +84,7 @@ public class DataLoader {
             userRepo.save(editor);
 
             List<TaskRequest> taskRequests = List.of(
-                    new TaskRequest("Zadanie1", "asdasd", 1L, Set.of(2L, 3L, 1L), 1L,
+                    new TaskRequest("Zadanie1", "asdasd", 1L, Set.of(), 1L,
                             LocalDate.of(2025, 6, 24), LocalDate.of(2025, 6, 8), "TO_DO", null, 22),
                     new TaskRequest("Zadanie2", "asdasd", 1L, Set.of(2L, 3L, 1L), 1L,
                             LocalDate.of(2025, 6, 24), LocalDate.of(2025, 6, 8), "TO_DO", null, 22),
@@ -99,7 +101,11 @@ public class DataLoader {
                     new TaskRequest("Zadanie8", "asdasd", 1L, Set.of(2L, 3L, 1L), 1L,
                             LocalDate.of(2025, 6, 24), LocalDate.of(2025, 6, 8), "REJECTED", null, 22)
             );
-
+            for(int i = 0 ; i < 50;i ++){
+                taskService.addTask(new TaskRequest("NoweZadanie" + (i + 1), "asdasd", 1L, Set.of(2L, 3L, 1L), 1L,
+                        LocalDate.of(2025, 6, 24), LocalDate.of(2025, 6, 8), "IN_PROGRESS", null, 22)
+                );
+            }
             for (TaskRequest request : taskRequests) {
                 taskService.addTask(request); // lub inna metoda w Twoim serwisie
             }

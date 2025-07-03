@@ -2,6 +2,7 @@ package com.example.szp.controllers;
 
 import com.example.szp.DTO.LoginData;
 import com.example.szp.DTO.RegisterData;
+import com.example.szp.DTO.UserDataDetails;
 import com.example.szp.DTO.UserDataShort;
 import com.example.szp.models.UserAccount;
 import com.example.szp.models.UserRole;
@@ -52,6 +53,7 @@ public class AuthController {
         if(userAccountRepo.existsByUserName(registerData.getUsername())) {
             return new ResponseEntity<>("Error: Username already exists", HttpStatus.CONFLICT);
         }
+        System.out.println(registerData);
         userService.registerNewUser(registerData, passwordEncoder);
         System.out.println("User registered: " + registerData.getUsername());
         return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
@@ -96,6 +98,20 @@ public class AuthController {
         }
         String user = jwtUtils.getUserNameFromToken(token);
         UserDataShort userData = userService.getUserDataByUsername(user);
+        return new ResponseEntity<>(userData,HttpStatus.OK);
+    }
+
+    @GetMapping("/getDetailUserFromToken")
+    public ResponseEntity<UserDataDetails> getDetailUserFromToken(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return new ResponseEntity<>( HttpStatus.UNAUTHORIZED);
+        }
+        String token = authHeader.substring(7);
+        if(!jwtUtils.validateToken(token)) {
+            return new ResponseEntity<>( HttpStatus.UNAUTHORIZED);
+        }
+        String user = jwtUtils.getUserNameFromToken(token);
+        UserDataDetails userData = userService.getUserDataDetailsByUsername(user);
         return new ResponseEntity<>(userData,HttpStatus.OK);
     }
 }
